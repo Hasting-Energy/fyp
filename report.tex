@@ -1,0 +1,432 @@
+\documentclass[a4paper,11pt,fleqn]{report}
+
+\usepackage{acronym}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{lipsum}  
+\usepackage[margin=30mm]{geometry}
+\usepackage{graphicx}
+	\graphicspath{
+		{Graphics/}
+	}
+\usepackage{hyperref}
+	\hypersetup{
+		colorlinks=true,
+		linkcolor=blue,
+		filecolor=blue,
+		urlcolor=blue,
+		citecolor=blue
+	}
+\usepackage[sort&compress]{natbib}
+	\bibliographystyle{apalike}
+\usepackage{soul}
+\usepackage{url}
+\usepackage{wasysym}
+
+% Adding a note block for yourself.
+\newcommand{\noteToSelf}[1]{
+   {\flushleft \vspace*{3mm}
+   \fbox{ \parbox{0.97\textwidth}{\textbf{Note:} #1} }
+   \vspace*{3mm}\\}
+}
+%Something to do with the page setup and the footer END
+
+\begin{document}\
+\thispagestyle{empty}
+\begin{center}
+{\huge Complex production scheduling due to multiple product combinations per machine.}
+\vspace{20mm} \\
+{\Large Charles Hasting Dickinson}
+\vspace{5mm} \\
+{\Large u17001677}
+\vfill
+
+A project report in partial fulfilment of the requirements for the degree\\
+\vspace{10mm}
+{\Large \textsc{Baccalareus (Industrial Engineering)}} \\
+\vfill
+%
+in the \\
+\vspace{20mm}
+%
+{\Large \textsc{Faculty of Engineering, Built Environment, and \\ 
+Information Technology}}\\
+%
+\vspace{10mm}
+{\Large\textsc{University of Pretoria}} \\
+%
+\vfill
+%
+\today 
+\end{center}
+%===============================================================
+% Frontmatter and title page to be added manually at the end
+%===============================================================
+\pagenumbering{roman}
+% Dont know whats cooking with the title page
+\include{TitlePage}
+\include{Abstract}
+
+ABSTRACT
+
+Jumbo Brands, established in 1985, was known as a popular ice popsicle company Jolly Jumbo. Not only the name has changed over the years as their production lines has grown and the type of products that they manufacture. The company only focuses on products for the food industry with items such as vinegar, lemon juice, hot chocolate. The company needs to build up to two weeks’ worth of safety stock to be able to fulfil all there clients orders, currently with there Make to Order production scheduling they are struggling to keep up. Operational research (OP) is determined as an appropriate theoretical area in industrial engineering to determine the company’s most optimal solution for their production scheduling from their Make to Order system to a Make to Stock system. A literature review is done on the above-mentioned theoretical area as well as on the project approach. In phase one of the problem analysis, industrial engineering techniques such as a fishbone diagram and the Five Whys are used to understand the problem . In the second phase of the problem analysis, research was conducted to understand what other people did when faced with a similar problem area. It was important to understand the different types of models used to obtain a production schedule and to understand what the problem identified requires. The requirement elicitation is done in the literature review to ensure that the most fitting model is used for the project. The chosen model, Mixed integer linear program (MILP), is further explained as well as aspects connected with this specific model. After understanding the models and gathering required data as determined by the problem analysis section it was possible to construct a preliminary solution with an objective function that minimises the amount of changeovers. A sensitivity analysis was done to determine what will happen with the preliminary solution if identified parameters were changed, in order to make sure that the best solution is chosen. Three scenarios were considered, namely increase in demand, breakdown on one line and changing production time.
+
+\tableofcontents
+%\listoffigures\addcontentsline{toc}{chapter}{List of Figures}
+%\listoftables\addcontentsline{toc}{chapter}{List of Tables}
+% Add acronyms here
+\chapter*{Acronyms}
+\addcontentsline{toc}{chapter}{Acronyms}
+\begin{acronym}[ABCDEF]
+    \acro{MILP}{Mixed Integer Linear Program}
+    \acro{OR}{Operations Reasearch}
+    \acro{FMCG}{Fast Moving Consumer Goods}
+    \acro{ERP}{Enterprise Resource Planner}
+    \acro{SKU}{Stock Keeping Unit}
+    \acro{STN}{State-Task-Network}
+    \acro{RTN}{Resource-Task-Network}
+    
+\end{acronym}
+
+\chapter{Introduction}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\acresetall
+%Welcome to writing in \LaTeX~ during your stay in \ac{CTD} at \ac{UP}.
+%At the start of each chapter we reset all the acronyms so that they are typed out in full the first time they are used in a chapter. 
+
+In this section, the background of the project environment will be discussed to give the reader a better understanding of the project.
+
+    \section{Background}
+        \subsection{Project context}
+            Small companies often adopt a multiple product approach regarding manufacturing to diversify revenue across the different market segments and seasonal periods. This approach is beneficial for financial stability within companies but can become complex due to demand increase. Jumbo Brands is a proudly South African company that initially started by manufacturing ice popsicles under the name Jolly Jumbo. Since then, Jumbo Brands has grown immensely into a multi-product company producing different liquid and powder-based products within the food industry. These products are blended and packaged in-house for brands owned by Jumbo Brands and external contracts. Jumbo Brands manufactures 206 different products with their thirteen manufacturing lines, with each line suitable for certain products. Jumbo Brands run a wide variety of products daily, resulting in a significant decrease in efficiency as regular changeovers between products are a very timely process.Jumbo Brands used to follow a Make to Order manufacturing process, but they were not able to complete all the required orders in time for delivery. Since then, Jumbo Brands has decided to move to a Make to Stock manufacturing process with the long term goal of at least two weeks worth of stock on hand.
+        \subsection{Problem statement}
+            Jumbo Brands decided to move to a Make to Stock system to obtain two weeks’ safety stock, but are struggling to build and maintain this stock level with their current production planning system. Jumbo Brands decided to build and maintain two weeks’ worth of stock by minimising the complexities caused by sequence dependant changeovers. Finding a way to aid Jumbo Brands with the identified problem, it will be possible for the company to transition from a Make to Stock system to a Make to Order system.
+        \subsection{Project motivation}
+            Since Jumbo Brands decided to move to Make to Stock, they have struggled to build up the necessary safety stock for all their Stock Keeping Units (SKU). Production scheduling has a significant influence on creating product availability. Currently, Jumbo Brands tried to alleviate the problem by using a manual excel spreadsheet to do production planning which entails lot sizing and production scheduling. However, this tool does not help solve the complexity caused by changeovers and is based on the fulfilment of orders, not necessarily to build stock. The different compatibilities between products cause a substantial time loss due to changeovers. This loss differs between the sequence of different products. The complexity is caused by specific tasks that need to be conducted between each different product. Changeovers consist of multiple tasks: setting up the machines for a new size of packaging material and preventing cross-contamination by adequately cleaning all the needed equipment. Specific sequencing of certain product combinations is crucial to minimise the time lost due to changeovers.
+            
+            The company is experiencing stock outages at times, which leads to three possibilities, namely back ordering, cancelled orders or losing a customer, all three have large cost effects on a company that could have been prevented if effective planning was done. This example based of one of Jumbo Brands clients, Tiger Brands, this entails the cost of not fulfilling the client’s order. Jumbo brands manufacture five different products for Tiger Brands on an average per month Tiger Brands orders 1258 boxes of Tiger brands SIXO Cola.
+            
+            Table 1: Cost description
+            
+            If the manual excel spreadsheet method of production planning is not replaced by a more suitable method, the company will still struggle to fulfil clients’ orders which, leads to one of the costs occurrences mentioned in Table 1: Cost description. It is crucial to ensure the company has two weeks’ worth of stock, to have a Make to Stock system, to minimise the possibility of losing capital.
+        \subsection{Appropriate theoretical context}
+            Operations research (OP) has shown to be the most promising area for a solution to the problem. According to Georgiadis et al. (2020), OP focuses on using different models to find an optimal solution to help with decision making within companies. The research conducted by Georgiadis et al. (2020) regarding specific OP techniques within the food process industry to improve the efficiency of production scheduling. Georgiadis considered previous models used for production scheduling. Georgiadis found that in the 1990s, researchers were trying to find algorithms that would suit all situations. These models were mainly classified as a State-Task-Network or a Resource-Task-Network.
+            
+            Table 2: Theoretical sources
+\chapter{Literature review}
+\acresetall
+
+In this chapter, a literature review is presented on how to approach the project, how to analyse the problem and how to conduct a requirement analysis. The literature review aims to conduct research in order to understand the whole project.
+
+    \section{Literature on the project approach}
+        Since the solution to this project lies within the field of operations research, the Design Research methodology proposed by \citep{Manson2006} will be used. The methodology ids discussed below with the specific view of this project.
+        
+        Awareness of the Problem
+        
+            In this stage of the Design Research process, the problem is identified, made aware of. The problem is analysed by looking at similar problems and reviewing and understanding their solution, creation and evaluation methods to move on to the next stage of the Design Research process. The deliverable for this phase is a project proposal that will help orientate the direction of a new research effort.
+            
+        Suggested solution
+        
+            The focus of this phase is to formulate a model that satisfies the needs of this project. This will mainly be done by looking at similar research papers and learning from them to formulate a model that best suits the situation. The product of this phase will be a mixed-integer linear program that meets all the required outputs.
+            
+        Development of solution
+        
+            The model formulated in the previous phase will be developed using mathematical modelling techniques relevant to this area of study. It is still unknown which software will be used to achieve this, but further study will be done into this area.
+            
+        Evaluation
+        
+                The model will be compared to the current method of production scheduling to see if it is effective. This will be done by looking at certain key performance indexes relevant to the area of study. Further methods will be researched to look at the model’s validity, and it will be tested to see if the answer is logical and constant.
+                
+        Conclusion
+                
+                Once the model has reached a point where it provides a satisfactory suggestion, it will be put forth as the final solution. This solution will then be further analysed to look at future recommendations for improving the model. Table 3 considers how the chapters in this report connect with the methodology mentioned above. Chapter 2 is connected with all parts of the methodology as each part requires a literature review.
+                
+                Table 3: Methodology connections
+            \subsubsection{Problem analysis}
+            The first phase of the problem analysis is to use industrial engineering techniques to understand the identified problem clearly and the second phase is to do research on models that considered similar problem statements as previously mentioned. As a whole this section makes it possible to formulate the problem identified and to understand what information is required to solve the problem.
+            
+            Cause and effect analysis
+            
+                Andersen and Fagerhaug (2006) states that a cause and effect diagram is “a diagram that analyses relationships between a problem and its causes. It combines aspects of brainstorming with systematic analysis to create a powerful technique, this tool’s main purpose is to understand what causes a problem.”. According to Bjørn Andersen and Tom Fagerhaug (2006, p. 119) different cause and effect analyses exists, such as fishbone and process diagrams. Fishbone diagrams are a traditional method of making charts, with the main product being a chart with a shape that resembles a fishbone .A process diagram focuses more directly on analysis of problems with in business processes. A fishbone chart is created for each step of the process that is considered to create problems thus addressing all possible causes of less than expected performance. After all individual fishbone diagrams are created a collective analysis is conducted to determine the causes of the highest importance thus completing the process diagram.
+                
+                The fishbone diagram will be used to analyse all potential causes of the main problem, why Jumbo brands need to change to a Make to Stock system.
+                
+            Five Whys
+                According to Bjørn Andersen and Tom Fagerhaug (2006, p.129) the Five Whys process is used to dig deeper into the level of identified causes. To be able to ultimately determine the root cause of a problem, ‘why?’ should be asked every time a cause has been identified. More than Five Whys can be asked if the possible root cause was not identified in the first five steps (Andersen and Fagerhaug, 2006). It is possible that the root cause was not identified after asking the five whys meaning more whys can be asked. Ultimately when no further causes can be found, when a why is asked, the last answer to the last why asked is identified as the root cause to the problem (Andersen and Fagerhaug, 2006).
+                
+                Bjørn Andersen and Tom Fagerhaug (2006, p. 130) indicates steps in order to conduct the Five Whys process:
+                
+                1. Determine the starting point of the analysis, either a problem or an already identified cause that should be further analysed.
+                
+                2. Use brainstorming, brainwriting, and other approaches to find causes at the level below the starting point.
+                
+                3. Ask “Why is this a cause of the original problem?” for each identified cause.
+                
+                4. Depict the chain of causes as a sequence of text on a whiteboard.
+                
+                5. For each new answer to the question, ask the question again, continuing until no new answer results. This will most likely reveal the core of the root causes of the problem.
+                
+                6. As a rule of thumb, this method often requires five rounds of the question “Why?” 
+                
+                By combining the Five Whys process with the cause and effect analysis it will make it possible to have a deeper understanding of the identified problem. The cause and effect diagram will be completed first then the Five Whys process will follow to clearly understand all the causes identified by the cause and effect diagram.
+                
+            Researched information
+            
+                As stated in Chapter 1, Georgiadis et al. (2020) considers OP techniques in the food process industry to improve the efficiency of production scheduling. Georgiadis et al. (2019) specifically looked at a Spanish fish canning company. After the possible areas of inefficiency regarding production scheduling, it became clear that the complexity is due to the facility being host to multi-product, multi-stage production. Georgiadis et al. (2019) solution took form through multiple MILP, firstly, the model converts orders into batches using a precedence framework. After that, a MILP was running that refers explicitly at the sequencing of production; the model was formulated by using a unit-specific general precedence framework to achieve an optimal production schedule regarding the multiple sequential stages needed to complete products.
+                The work done by Angizeh et al. (2020) refers to taking a more smart orientated approach by implementing energy consumption into the production scheduling problem. The author uses a MILP that minimizes the total manufacturing cost, which is comprised of production, energy and labour costs. The result of this model produces optimal labour and product assignment within the production schedule.
+
+                The research conducted by Farizal et al. (2021) looks at optimising the production schedule of a fast moving consumer good (FMCG) plant that produces soap. The proposed model uses two objective functions, which minimizes the number of machines used and the make span of products. The author tested the model by using each objective function separately and then together. This showed that minimising the number of machines leads to a low machine utilisation rate and an extended make span. This concern is appropriately altered by adding the second objective function. Farizal et al. (2021) collected data connected to production planning. The data collected is as follow:
+                    - Production line. Description of the production line used to produce items.
+                    - Products. Describes the product and the production line responsible for.
+                    - Process time. Considers the time it takes to manufacture a batch.
+                    - Product demand. Considers the demand for all items produced on the production lines in question.
+                    - Capacity. Refers to the capability of the production line.
+                    
+                    Liu et al. (2010) addresses a medium-term planning situation with a single-stage continuous multiproduct plant with multiple manufacturing lines requiring sequence-dependant changeovers. The model is a MILP which is based on the travelling salesperson problem (TSP). The model looks at applying a rolling horizon approach by taking the required length of the planning horizon and splitting it up into different subproblems, which are solved up and until the end of the planning horizon.
+                    Masruroh et al. (2020) looked at integrating production planning decisions with the rest of the supply chain to increase the total supply chains profit. (Masruroh et al., 2020) chose this concept due to the flexibility needed within a multi-product production facility. In a multi-product production facility, changeover and setup times should be prioritised when creating a production schedule due to their tremendous impact. Two different MILP were used to combine the two areas of interest. Various types of objective functions to best suit Masruroh et al. (2020) situations were considered. Success was shown within this study's parameters by using an objective function that maximises profit when prioritising the supply chain side of the study. After that, Masruroh et al. (2020) looked at minimising setup time and cost due to the beneficial characteristics of increasing production rate and reduced lead time. The combination of these two models creates results that reflect an optimal production schedule while considering distribution.
+                    Very few production schedules consider the limiting factors of production resources, this side of the production scheduling problem is thoroughly explained by Jodlbauer and Strasser (2019). This is done by splitting the used items into on-demand items and consumption items. Meaning that consumption items produced in-house is used in the on-demand items. The production plan is divided into three different levels that consider the limiting constraint.
+                    From the above research that was conducted, it is clear that a well-formulated production schedule must interact with other planning attributes within the company, such as demand and order due dates.
+        \subsection{Solution Construction Technique}
+                Georgiadis et al. (2019) shows the basis of how to formulate a Mixed Integer Linear Program (MILP) for production scheduling. It states that three elements that need to be mapped before creating the model, namely: time, tasks and resources. The time at which specific production tasks takes place and the appropriate sequence which they will follow. The tasks are the processes that need to be completed to transform the raw materials into a final product. The resources include all the different resources needed to manufacture a product.. To appropriately describe a production scheduling problem, you need to look at the facility data, production targets and resource accessibility and limitations. A typical production scheduling model should attend to batching/lot-sizing, task resource assignment and sequencing and timing of tasks.
+                Georgiadis et al. (2019) states that the MILP models that fall under these classifications can further be classified based on the time representations, namely discrete and continuous. Furthermore, the models can be categorised into time-grid based or precedence based. The concept of finding one model to suit all situations quickly became irrelevant due to the various features required by different scheduling problems.
+                
+            MILP
+            
+                According to Sung and Maravelias (2009) “a MILP model, variables may be continuous or discrete, all constraints are linear inequalities, and the objective function is linear, and all discrete variables are assumed to be binary-valued”. Variables are constrained by integrality constraints y E and by redundant bounds 0 ≤ y ≤ 1 (Sung and Maravelias, 2009). Sung and Maravelias (2009) states that a MILP model is “linearly relaxed” by removing integrality constraints while maintaining redundant bounds. Graphically, the feasible region of a MILP model is usually presented as the feasible region of its linear relaxation with integrality constraints superimposed, and mathematically, each enumeration of the MILP model’s binary variables results in LP (Sung and Maravelias, 2009). A MILP model’s linear relaxation is an over-approximation thus the solution provides a bound on the MILP optimal objective. By introducing linear inequality y ≤ 0 (in combination with 0 ≤ y ≤ 1, this forces y to be equal to 0) or linear inequality y ≥ 1 (this forces y to be equal to 1) a LP is restricted thus, re-introducing integrality.
+                
+                When considering a series of progressively restricted LP’s, organized as part of a hierarchical tree, it can be solved to collectively yield a tighter bound than the linear relaxation solution. Sung and Maravelias (2009) states that the “solution of MILP models generally relies on a branch-and-cut algorithm to organize a series of LP solutions”. Since each LP roughly corresponds to a specific combination of individual binary variables being relaxed (0 ≤ y ≤ 1), fixed to 0, or fixed to 1, branchand- cut is a form of implicit enumeration (Sung and Maravelias, 2009). Sung and Maravelias (2009) states that when a MILP model grows in size, it grows linearly in binary variables but exponentially in combinations.
+                
+            Model Terminology
+            
+                According to Sung and Maravelias (2009) models contain variables, constraints and an objective function. A combination of variables is seen as existing in a higher-dimensional space with constraints being used to define an allowed subset of this space, called the feasible region. The objective function is used to determine which point in the feasible region is most suited (Sung and Maravelias, 2009). As Sung and Maravelias (2009) states, all variables are solved simultaneously, thus no distinction is made between variables. 
+                Scheduling formulations can be categorised into a network-based formulation of general processes or a batch-based formulation for sequential processes (Sung and Maravelias, 2009).
+                From Table 4, the following is obtained, to further define a facility, certain aspect needs to be identified within the facility. The process type can be described as a continuous or batch process. With a continuous process, there is a constant flow of materials throughout the entire process, and it is usually implemented with mass production facilities. Wherewith, a batch process approach is all the relevant materials are transformed at one unit before moving to the next. The production environment indicates the material handling within the facility, and it can be sequential or network-based. A sequential environment implies that each batch has an exact path that it follows to achieve a final product. It can further be split up into single stage where there is only one unit needed to manufacture the product or multi-stage where more than one unit is used. Then a network environment has no specific operation that needs to be performed by a specific unit during manufacturing.
+                
+                Table 4: Model description (Sung and Maravelias, 2009)
+                
+                Looking at the above-mentioned information it is clear that in the case of Jumbo Brands the following is applicable. Jumbo Brands follows a batch process with a sequential environment wherein it has a multi-stage setup.
+                
+            Optimality
+            
+                Any solution within the feasible region is seen as feasible, even if the optimal solution is not known yet. In addition, a “bound” can be found that is no worse than the optimal value. According to Sung and Maravelias (2009) a bound is used to find a value that is no worse than the optimal value. A bound is found by searching an overapproximating of the original feasible region, if the overapproximating overlaps the feasible region the optimal solution of the overapproximating must be at least as good as the optimal solution of the feasible region.
+            
+            \subsubsection{Alternative or priority construction}
+                Higle and Wallace (2003) indicated that sensitivity analysis is used to explore how changes in the problem data might change the solution to a linear program. According to Higle and Wallace (2003) the use of sensitivity analysis is to allay concerns about uncertainty to draw attention to an issue that rarely arises in the development of LP models. As LP models usually includes time periods, they typically are in the time at which decisions take effect, for example production levels in a certain month
+                According to Farizal et al. (2021) by using sensitivity analysis scenarios it provides a check to see if the proposed LP model is applicable to provide the optimal results. An example of how to use a sensitivity analysis as done by Farizal et al. (2021) with accordance with his “Production scheduling optimisation to minimise makespan and the number of machines” LP model. In his example he considers three different scenarios namely surging demand, changing production time and if a production line is not used.
+                
+                Scenario 1: Surging demand
+                
+                This scenario is a situation where additional demand occurs threefold or more than the forecasting value. This situation is not an impossible situation. In real life, demand can increase triple or more when special events occur. For example, during religious holiday or at the end of year. To cope such a situation, companies usually carry safety inventory for a given period. However, if the sudden demand is beyond the safety inventory, company can implement overtime strategy or sub-contracting strategy. In this scenario, say the demand goes up like shown in Figure 1. The demand goes up four times than the forecast. For this kind of demand, will the existing production capacity be able to handle? If the answer is yes, what is the production arrangement and the schedule?
+                
+                Figure 1: Scenario 1
+                
+                Figure 2: Scenario 1 data
+                
+                Figure 3 shows the optimization result for the scenario displayed on Figure 1. The result show that the current production lines are able to handle a demand spike of four folds if the machine is scheduled properly. Table 14 clearly shows that to handle the high jump of the demand, all the four lanes are utilized with the makespan 540.1 hours. This makespan makes the production lines almost in 100% utilization. The makespan is approaching the total machine available time, i.e. 550 hours. For this scenario, Lines A, B, and C are dedicated to produce products 2, 5, and 1, respectively. While the rest of products, i.e. products 3, 4, and 6 are scheduled at Line D with the production sequence as product 6, product 3, and product 4.
+                
+                Figure 3: Scenario 1 results
+                
+                Scenario 2: Changing production time
+                
+                This scenario happened when the total available time for the lines to be operated is only 295.4 hours instead of 505 hours. This scenario happens for instance if national holidays are observed at one particular month. The holiday will reduce the regular production time. The scenario may frequently happen in Indonesia so it should be anticipated. Figure 4 shows the optimization scheduling results for this scenario. The results indicate to use the two largest capacity machines, i.e. lines D and A. Line D is used for producing products 3 and 2, while line A is for products 1, 5, 6, and 4. The makespan for this scheduling scheme is 185.1 hours. The two lines almost utilized at the same utilization rate.
+                
+                Figure 4: Scenario 2 results
+                
+                Scenario 3: Production line is not being used
+                
+                Scenario 3 is a situation where the number of products needed is normal but a line with the largest capacity is broken or turned off for maintenance. If this scenario happens, what is the optimum scheduling to be used? In this research, the scenario is only checked for the largest capacity machine since this scenario will make sure the production will be fulfilled if a lesser capacity machine was broken. Figure 5 shows the optimization result for scenario 3. The production can be scheduled with the second largest capacity machine, Line A. The makespan for this scenario is 490.7 hours and the production sequence are product 1, 3, 2, 5, 4, and 6.
+                
+                Figure 5: Scenario 3 results
+                
+                In this example he makes use of scenarios that can happen in real life and based of the chosen scenarios and the changes it brings he determined the best solution. A sensitivity analysis will be done, in accordance with the example mentioned above, in order to understand the effect that changes have on the model and to ultimately chose the best solution to the problem.
+                
+            \subsection{Literature review summary}
+                The literature reviews consider industrial engineering techniques such as the fishbone diagram and Five Whys to understand the complete problem. Past research is used to understand how other similar problems were analysed and what method was used to ultimately understand the problem to solve it.
+                According to the information obtained from the research conducted it was established that to solve the problem it is required to make use of a MILP model. The requirement elicitation section further looks in to a MILP to understand how it works and what is required to obtain a MILP.
+                Another industrial engineering technique was researched, namely a sensitivity analysis, this is used to understand the proposed solution and to see what changes have an effect on the model to ensure the correct solution was chosen. The sensitivity analysis also provides guidance to highlight where changes must be made or re-evaluated where the model is concerned.
+\chapter{Project approach}
+\acresetall
+
+    In this section the project approach will be discussed in detail.
+    
+    \section{Main deliverables}
+        The main deliverable of this project is a MILP model. The MILP must aid the company in their Make to Stock system by ensuring that two weeks’ worth of stock is available at all times.
+    \section{Project management deliverables}
+        All deliverables mentioned in Table 5 will be completed during BPJ 410 and BPJ 420. The mentioned deliverables will be used to complete the project and for the for the project sponsor to understand better understand the structure of the project.
+        
+        Table 5: Project deliverables
+        
+    \section{Phases, techniques and software tools}
+        As stated in Section 2.1 of the Design Research methodology proposed by Manson (2006) is be used for this project. By making used of this methodology, the problem can be understood, and a solution can be modelled.
+    \section{Project plan}
+        The project plan is considered in this section. The resources, constraints, budget and timeline is considered.
+        
+        \subsection{Resources, constraints, budget}
+            In order to obtain the correct information to understand the problem and to ultimately be able to construct a model human resources are required to gather this information.
+            Software tools will be required to analyse the information obtained and to model a solution. A software tool such as Lingo, Python or Excel will be used to model and test the constructed model to see if it is indeed the best solution. A computer will also be used to enable to usage of the stated software tools.
+            
+        \subsection{Timeline}
+            A detailed timeline is presented in Appendix A: Gannt chart by making use of a Gantt chart, this timeline is done in more detail then the BPJ module presents.
+            
+\chapter{Problem analysis}
+\acresetall
+
+    As stated in Section 2.1.1 before the production problem is modelled it is important to first understand the problem as a whole and to then understand the current production planning structure of the company which will present the information that is required to solve the problem.
+    
+    Observations
+    
+    To find the possible bottle neck which is withholding the company from keeping a two week stock level per product the ERP was consulted. After analysing which products are on back order the most and which machine lines they correspond with. It became evident that only the Bottling lines where currently struggling to keep up with orders. Even though further analysis showed that the 4 bottling lines are capable of producing the required amounts if managed properly. Thus the model only needs to cover these four lines. The relevant Data for the model for each line can be seen in Appendix B: Model Data.
+    
+    The fishbone diagram combined with the Five Whys
+    
+    As mentioned in the literature review the fishbone diagram and the Five Whys method is combined in order to have a better understanding of the problem. As seen in Figure 6: Fishbone diagram the main problem is that there is no sufficient finished goods safety stock available. Three causes were looked at, namely current production planning structure, the long changeover time and the machine capacity. The current production planning structure looks at the current Excel spreadsheet method used to fulfil a client’s order and how this Make to Order structure is preventing safety stock to build up. Long changeover time, as production is scheduled according to client orders the most optimal changeover time is not considered meaning this is production time lost which can be used to produce finished goods.
+    The machine capacity considers the fact that production is scheduled according to the Make to Order structure meaning the machines full capacity is not always used and again not optimising production time.
+    
+    Figure 6: Fishbone diagram
+    
+    By considering the Five Whys conducted for each cause it is evident that the Make to Order structure is restricting the safety stock levels that want to be obtained, thus a Make to Stock structure is indeed a possible solution to the problem. It is also clear that the causes mentioned are affected by the fact that a proper production scheduling model/program that considers changeover times, machine capacity and stock levels is not in place. By making use of the suggested MILP model as seen in the literature review it is possible to take the identified causes into consideration to solve the problem.
+    
+    The facility
+    
+    Jumbo Brands currently have thirteen manufacturing lines. The thirteen lines are described, as seen in Table 6. The facility has two warehouses where raw materials and finished products are received, sent and stored from. As production planning instructs, raw materials are obtained from the warehouse and then taken to the appropriate manufacturing line to start the production process. Currently items are made according to an order meaning directly after production they are delivered to the client.
+    
+    Table 6: Manufacturing line description
+    
+    Products
+    
+    In Appendix B: Model Data, It shows all products manufactured on the 4 bottling lines and there respective data needed for the model.. The company manufactures products such as coffee and different types of beverages, lemon juice, vinegar and snacks.
+    
+    Production capacity
+    
+    Each product produced on the corresponding lines as seen in Error! Reference source not found. has its own rate at which a specific product can be produced. It is important to obtain this information as it is required for the scheduling of production to be performed accurately in accordance with the demand forecasting of a product. The production capacity is described by the number of units produced after an hour.
+    
+    Demand forecasting
+    
+    The Sales department has established a sales forecast for the year from March 2021 to February 2022. According to the Sales department this forecasting is done based on historical data and seasonal demand patterns. There after the average range of stock was calculated to test if the model will be able to robust enough to handle all products irrespective of seasonality. The forecast is required to determine how many hours are required for each line per time period.
+    
+    To create a solution to Jumbo Brands production scheduling problem, there will be two main areas that the model will have to consider. This was evident after conducting the problem analysis:
+     It must accurately determine the lot sizes per stock-keeping unit (SKU) to enable the company to achieve the goal of two-weeks safety stock.
+     To correctly place these lots into a most optimal sequence with regards to time wasted due to changeovers.
+    
+\chapter{Preliminary Solution}
+\acresetall
+
+    In the following chapter a preliminary solution for the problem will be presented. The preliminary solution contains sets identified, parameters determined according to the identified information in Chapter 4, the variables required, the constraints identified to limit the model and lastly the objective function.
+
+    \section{The mathematical model}
+        \subsection{Parameters, variables and Sets}
+            Let:
+            \newline
+            \begin{tabular}{l c p{0.8\linewidth}}
+                $I$ be the set of products produced.\\
+                $T$ be the set of time periods.\\
+                $BC_i$ $\triangleq$ The penalty cost (R/unit) per product $i$, where $i\in \pmb{I}$.\\
+                $CC_ij$ $\triangleq$ The change over cost (R/change over) from product $i$ to product $j$, where $i\in \pmb{I}$ and $j\in \pmb{I}$.\\
+                $PC_i$ $\triangleq$ The product cost price (R/unit) per product $i$, where $i\in \pmb{I}$.\\
+                $PS_i$ $\triangleq$ The product selling price (R/unit) per product $i$, where $i\in \pmb{I}$.\\
+                $D_it$ $\triangleq$ The demand (unit) of product $i$ for time period t, where $i\in \pmb{I}$and $t\in \pmb{T}$.\\
+                $R_i$ $\triangleq$ The machine processing rates (unit/hour) per product $i$, where $i\in \pmb{I}$.\\
+                $CT_ij$ $\triangleq$ The change over time (hour) from product $i$ to product $j$, where $i\in \pmb{I}$ and $j\in \pmb{I}$.\\
+                $O_it$ $\triangleq$ The order index of product $i$ for period t, where $i\in \pmb{I}$ and $t\in \pmb{T}$.\\
+                $P_it$ $\triangleq$ The amount of product $i$ produced for period t, where $i\in \pmb{I}$ and $t\in \pmb{T}$.\\
+                $S_it$ $\triangleq$ The amount of product $i$ sold for period t, where $i\in \pmb{I}$ and $t\in \pmb{T}$.\\
+                $T_it$ $\triangleq$ The processing time of product $i$ for period t, where $i\in \pmb{I}$ and $t\in \pmb{T}$.\\
+                $V_i$ $\triangleq$ The amount of stock of product $i$ at the end of the period $t$, where $i\in \pmb{I}$ and $t\in \pmb{T}$.\\
+                $B_it$ $\triangleq$ The amount of backlog of product $i$ at the end of the period $t$, where $i\in \pmb{I}$ and $t\in \pmb{T}$.\\
+                $UT$ $\triangleq$ The upper bound for the time in a time period.\\
+                $LT$ $\triangleq$ The lower bound for the time in a time period.\\
+                $UV_i$ $\triangleq$ The maximum storage per product $i$, where $i \in \pmb{I}$.\\
+                $LV_i$ $\triangleq$ The minimum storage per product $i$, where $i \in \pmb{I}$.\\
+                $W_it$ $\triangleq$ $\begin{cases}
+                                          1 \quad \text{if product } i \text{ is produced in the period } t \text{, where } i\in \pmb{I} \text{ and } t\in \pmb{T},\\
+                                          0 \quad \text{otherwise},
+                            \end{cases}$\\
+                $Z_it$ $\triangleq$ $\begin{cases}
+                                          1 \quad \text{if product } i \text{ is last product produced } t \text{, where } i\in \pmb{I} \text{ and } t\in \pmb{T},\\
+                                          0 \quad \text{otherwise},
+                            \end{cases}$\\
+                $A_it$ $\triangleq$ $\begin{cases}
+                                          1 \quad \text{if product } i \text{ is fist product produced in the period } t \text{, where } i\in \pmb{I} \text{ and } t\in \pmb{T},\\
+                                          0 \quad \text{otherwise},
+                            \end{cases}$\\
+                $Y_ijt$ $\triangleq$ $\begin{cases}
+                                          1 \quad \text{if product } i \text{ immediately precedes product } j \text{ in period $t$ ,where} i\in \pmb{I} and j\in \pmb{I} \text{ and } t\in \pmb{T},\\
+                                          0 \quad \text{otherwise},
+                            \end{cases}$\\
+                $X_ijt$ $\triangleq$ $\begin{cases}
+                                          1 \quad \text{if there is a changeover from product  } i \text{ in period } t-1 \text{ to product }  j \text{in period } t \text{, where}\\
+                                          \text{    }i\in \pmb{I} and j\in \pmb{I} \text{ and } t\in \pmb{T},\\
+                                          0 \quad \text{otherwise},
+                            \end{cases}$\\
+            \end{tabular}
+           
+        \subsection{Objective function}
+            \begin{align}
+                \label{GPP:ObjectiveFunction} \max z = \sum_{i\in I}\sum_{t\in T} PS_iS_{it} - \sum_{i\in I} \sum_{j\in I} \sum_{t\in T} CC_{ij} Y_{ijt} - \sum_{i\in I} \sum_{j\in I} \sum_{t\in T - 1} CC_{ij} X_{ijt}
+            \end{align}
+            \begin{align*}
+                - \sum_{i\in I}\sum_{t\in T} BC_{i} B_{it}
+            \end{align*}
+        \subsection{Constraints}    
+        \noindent subject to:
+        
+    \begin{align}
+        \label{Asignment1}
+            \sum_{i \in I} A_{it} = 1 &&  \forall t \in T\\
+        \label{Asignment2}
+            \sum_{i \in I} Z_{it} = 1 &&  \forall t \in T\\
+        \label{Asignment3}
+            A_{it} \leq W_{it} && \forall i\in I, t \in T \\
+        \label{Asignment4}
+            Z_{it} \leq W_{it} && \forall i\in I, t \in T \\
+%
+        \label{Changeover1} 
+             \sum_{i \in I, i \neq j } Y_{ijt} = W_{jt} - A_{jt} && \forall j\in I, t \in T\\
+        \label{Changeover2} 
+             \sum_{j \in I, j \neq i } Y_{ijt} = W_{jt} - L_{it} && \forall  i\in I, t \in T\\
+        \label{Changeover3} 
+             \sum_{i \in I}  X_{ijt} = A_{jt} && \forall j\in I, t\in T-{1}\\
+        \label{Changeover4} 
+             \sum_{j \in I} X_{ijt} = Z_{i,t-1} && \forall i \in I, t \in T - {1}\\
+%
+        \label{Subtour elimination1}
+            O_{jt} - (O_{it}+1) \geq -M(1- Y_{ijt}) && \forall i \in I, j \in I, i \neq j, t \in T\\
+        \label{Subtour elimination2}
+            O_{it} \leq M W_{it} && \forall i \in I, t \in T\\
+        \label{Subtour elimination3}
+            A_{it} \leq O_{it} \leq \sum_{j \in I} W_{jt} && \forall i \in I, t \in T\\
+        \label{timing1}
+            LT W_{it} \leq T_{it} \leq UT W_{it} && \forall i \in I, t \in T\\
+            \sum_{i \in I} T_it + \sum_{i \in I} \sum_{j \in I} (Y_{ijt} + X_{ijt})CT_{ij} \leq UT && \forall t \in T - {1}\\
+        \label{timing2}
+            \sum_{i \in I} T_{it} + \sum_{i \in I} \sum_{j \in J} Y_{ijt} CT_{ij} \leq UT && \forall t\in {1}\\
+        \label{Production}
+            P_{it} = R_i T_{it} && \forall i \in I, t \in T\\
+        \label{Backlog}
+            B_{it} = B_{i,t-1} + D_{it} - S_{it} && \forall i \in I, t \in T\\
+        \label{Inventory1}
+            V_{it} = V_{i,t-1} + P_{it} - S_{it} && \forall i \in I, t \in T\\
+         \label{Inventory2}
+            LV_i \leq V_{it} \leq UV_i && \forall i \in I, t \in T\\
+        \label{Binary}
+            W_{it}, Z_{it}, A_{it}, Y_{ijt}, X_{ijt} \in (0,1) && \forall i \in I, j \in I, t \in T
+    \end{align}
+
+        The ~\eqref{Asignment1} and ~\eqref{Asignment2} constraints ensures that all products are manufactured.Constraint ~\eqref{Asignment3} and ~\eqref{Asignment4} check that if the manufacturing is carried over to the next period that it was actually started in this period.The constraints ~\eqref{Changeover1} and ~\eqref{Changeover2} sets the first and last product that carries over from other time periods. The constraints ~\eqref{Changeover3} and ~\eqref{Changeover4} allocate the necessary changeovers. The constraints ~\eqref{Subtour elimination1} - ~\eqref{Subtour elimination3} eliminate the possibility of subtours. The constraints ~\eqref{timing1} - ~\eqref{timing2} ensure that the time given per time period is not exceeded by the model. The production constraint ~\eqref{Production} calculates total production per time period. The Backlog constraint ~\eqref{Backlog} calculates the amount of product backlog.The inventory constraints ~\eqref{Inventory1} and ~\eqref{Inventory2} calculate total inventory and ensure that the storage space is not exceeded.The constraint ~\eqref{Binary} is the non binary constraints.
+        
+\chapter{Alternative or priority construction}       
+\acresetall
+
+\chapter{Solution Constructs} 
+\acresetall
+
+\chapter{Conclusion}
+\acresetall
+
+\bibliography{Bibliography.bib}
+
+\appendix
+
+\end{document}
